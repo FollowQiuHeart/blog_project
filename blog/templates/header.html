@@ -1,0 +1,230 @@
+<style>
+    .myheader{
+        background-image: url("/static/images/bgimg/page_photo.png");
+        width: 100%;
+    }
+    .reg_log{
+        {#background-color: #0a68a3;#}
+        position: relative;
+        margin-top: 25px;
+        font-size: 16px;
+        color:#ff6700;
+    }
+    .myheader .logo_btn:hover{
+        font-size: 20px;
+        color: #000;
+        cursor:pointer;
+    }
+    .exit_btn{
+        {#position: relative;#}
+        float: left;
+        {#background-color: red;#}
+        margin-top: 25px;
+        margin-left: 0;
+        width:4%;
+        text-align: center;
+        color: #ff6700;
+    }
+
+    .exit_btn:hover{
+        color:#fff;
+        font-size:20px;
+        cursor: pointer;
+    }
+    .exit_btn img{
+        float: left;
+        width:100%;
+        height: 45px;
+        margin-left: 10px;
+    }
+</style>
+
+<script src="/static/js/jquery.2.1.4.min.js"></script>
+<script src="/static/js/my.js"></script>
+<header class="myheader">
+    <div class="exit_btn" id="exit_btn"><a href=""><img src="/static/images/h.gif" alt=""></a></div>
+    <div class="top">
+        <!--头像左边部分，logo-->
+        <div class="top-left">
+            <div class="reg_log">  <!--reg_log-->
+              <a class="logo_btn" id="login_btn" href={% url "myblog:login" %}>登录</a>
+              <a class="logo_btn" id="register_btn" href={% url "myblog:register" %}>注册</a>
+            </div>
+            {#<div class="logo"><a href="/"><img src="/static/images/qiu01.png"/></a></div>#}
+            {#<div class="logo"><a href="#"><img src="/static/images/logo.png"/></a></div>#}
+
+            <!--滚动消息-->
+            <div class="web-xiaoxi">
+                <i class="el-speaker"></i>
+                <ul id="mulitline" class="mulitline">
+                    <li>全功能博客系统</li>
+                    <li>Stay hungry,Stay foolish</li>
+                    <!--完美自适应手机-->
+                    <li>Keep looking,Don't sate</li>
+                </ul>
+            </div>
+            <!--END 消息 -->
+
+            <!--手机菜单按钮-->
+            <div class="mobile-nav"><i class="el-lines"></i><i class="el-remove"></i></div>
+        </div>
+
+        <!--电脑导航开始-->
+        <nav class="mynav">
+            <ul class="orange-text">
+                <li class=""><a href="{% url "myblog:index" %}">首页</a></li>
+                <li><a href="{% url "myblog:about" %}">关于</a></li>
+                <li><a href="{% url "myblog:article" 0 %}">博客</a></li>
+                <li class='drop'>
+                    <a href="JavaScript:;">分类<i class='el-chevron-down'></i></a>
+                    <div class="drop-nav orange-text ">
+                        <ul>
+                            {% for category in category_list %}
+                                <li><a href="{% url "myblog:article" category.id %}">{{ category.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                <li><a href="{% url "myblog:archive" %}">归档</a></li>
+                <li><a href="{% url "myblog:link" %}">链接</a></li>
+                <li><a href="{% url "myblog:message" %}">留言</a></li>
+            </ul>
+        </nav>
+
+        <!--这里是手机导航-->
+        <div class="mob-menu">
+            <!--手机顶部搜索-->
+            <div class="search ">
+                <form action="{% url "myblog:search" %}" method="get">
+                    <div class="search-index">
+                        <input name="name" type="text" placeholder="请输入关键字" onfocus="this.placeholder=''"
+                               onblur="this.placeholder='请输入关键字'"/>
+                        <i class="el-search"><input value=" " type="submit"/></i>
+                    </div>
+                </form>
+            </div>
+            <!--手机下拉菜单-->
+            <ul>
+                <li><a href="{% url "myblog:index" %}">首页</a></li>
+                <li><a href="{% url "myblog:about" %}">关于</a></li>
+                <li><a href="{% url "myblog:article" pk=0 %}">博客</a></li>
+                <li class='mob-drop'>
+                    <a href="javascrip:;">分类</a>
+                    <ul class="mob-dropmenu">
+                        {% for category in category_list %}
+                            <li><a href="{% url "myblog:article" category.id %}">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li><a href="{% url "myblog:archive" %}">归档</a></li>
+                <li><a href="{% url "myblog:link" %}">链接</a></li>
+                <li><a href="{% url "myblog:message" %}">留言</a></li>
+            </ul>
+        </div>
+    </div>
+    <!--换肤--->
+    <script src="/static/js/skin.js"></script>
+    <div class="select-skin">
+        <div class="skin-btn">
+            <a href="javascript:void(0);" class="skin-btn-open">换<br>肤</a>
+        </div>
+
+        <div class="skin-content">
+            <h1>选择风格<span class="skin-close">关闭</span></h1>
+            <div class="skin-content-list">
+                <div class="skin-list"><a href="#" onclick="setActiveStyleSheet('qingxin'); return false;" class="btn1">清新</a>
+                </div>
+                <div class="skin-list"><a href="#" onclick="setActiveStyleSheet('jianyue'); return false;" class="btn2">简约</a>
+                </div>
+                <div class="skin-list"><a href="#" onclick="setActiveStyleSheet('qingshuang'); return false;"
+                                          class="btn3">清爽</a></div>
+            </div>
+        </div>
+    </div>
+</header>
+
+{#script,检查登录+文字滚动+点击时间#}
+<script>
+    //检查登录状态
+    function check_login(){
+        var token = window.localStorage.getItem('qiublog_token')
+        var username =  window.localStorage.getItem('qiublog_user')
+        var post_data = {
+        'username':username,
+        'token':token
+        }
+        $.ajax({
+        // 请求方式
+        type:"post",
+        // contentType
+        contentType:"application/json",
+        // dataType
+        dataType:"json",
+        // url
+        url:"http://127.0.0.1:8000/blog/check_status/",
+        beforeSend: function(request) {
+           request.setRequestHeader("Authorization", token);
+        },
+        //url:"http://127.0.0.1:8000/test/",
+        // 把JS的对象或数组序列化一个json 字符串
+        data:JSON.stringify(post_data),
+        // result 为请求的返回结果对象
+        success:function (result) {
+            if (200 == result.code){
+                html = ""
+                html += "<img style='float:left;border-radius:50%;text-align:center;margin-top:-5.5px;height:30px;width:20px' src='/static/images/lufei.gif' />"
+                html += "&nbsp;追风者"
+                html += result.data.username
+                $(".reg_log").css("fontSize","20px")
+                $(".reg_log").css("color","#000")
+                $(".reg_log").html(html)
+                $(".exit_btn").text("退出")
+                $(".exit_btn").display="block"
+
+            }else{
+                {#html = ""#}
+                {#html += "<a class=\"logo_btn\" id=\"login_btn\" href={% url 'myblog:login' %}>登录</a>\n"#}
+                {#html += "<a class=\"logo_btn\" id=\"register_btn\" href={% url 'myblog:register' %}>注册</a>"#}
+                {#$(".reg_log").html(html)#}
+                console.log(result.error)
+            }}
+        });
+        }
+    //文字滚动
+    function text_scroll(){
+            var _wrap = $('#mulitline');//定义滚动区域
+            var _interval = 3000;//定义滚动间隙时间
+            var _moving;//需要清除的动画
+            _wrap.hover(function () {
+                clearInterval(_moving);//当鼠标在滚动区域中时,停止滚动
+            }, function () {
+                _moving = setInterval(function () {
+                    var _field = _wrap.find('li:first');//此变量不可放置于函数起始处，li:first取值是变化的
+                    var _h = _field.height();//取得每次滚动高度
+                    _field.animate({ marginTop: -_h + 'px' }, 500, function () {//通过取负margin值，隐藏第一行
+                        _field.css('marginTop', 0).appendTo(_wrap);//隐藏后，将该行的margin值置零，并插入到最后，实现无缝滚动
+                    })
+                }, _interval)//滚动间隔时间取决于_interval
+            }).trigger('mouseleave');//函数载入时，模拟执行mouseleave，即自动滚动
+            if ($("#mulitline li").length <= 1)//小于等于1条时，不滚动
+            {
+                clearInterval(_moving);
+            }
+        }
+    $(function () {
+        $("#login_btn").click(function () {
+            window.location.href = "login.html"
+        })
+        $("#register_btn").click(function () {
+            window.location.href = "register.html"
+        })
+        $("#exit_btn").click(function () {
+            localStorage.removeItem('qiublog_token');
+            console.log(localStorage.getItem('qiu_blogtoken'));
+            window.location.reload()
+        })
+        check_login()
+        text_scroll()
+    });
+</script>
+

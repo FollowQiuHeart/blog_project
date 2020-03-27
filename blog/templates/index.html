@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <section class="mysection">
+        <div class="swiper-container">
+            {#首页轮播图展示#}
+            <ul class="slides swiper-wrapper">
+
+                <li class="swiper-slide">
+                    <a href="https://image.baidu.com/" title="keep looking,don't sate!" target="_blank">
+                        <img src="/static/images/bgimg/show03.jpg"
+                             alt="keep looking,don't sate!"/>
+                    </a>
+                    <!-- Add Pagination -->
+                    <div class="swiper-pagination"></div>
+                    <span class="silde-title">stay hungry,stay foolish!</span>
+                </li>
+                <li class="swiper-slide">
+                    <a href="https://cn.bing.com/?ensearch=1&FORM=BEHPTB" title="Life is short, use Python" target="_blank">
+                        <img src="/static/images/bgimg/show02.jpg"
+                             alt="Life is short, use Python"/>
+                    </a>
+                    <!-- Add Pagination -->
+                    <div class="swiper-pagination"></div>
+                    <span class="silde-title">Life is short, use Python</span>
+                </li>
+            </ul>
+
+            <!-- Add Arrows -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+
+
+        <div class="arclist">
+            <h4 class="index-title homeh4"><a href=""><i class="el-certificate"></i>最新文章
+                <small>New Article</small>
+            </a></h4>
+            <!--列表开始-->
+            <ul>
+                {% for article in article_list %}
+                    <li id="New">
+                        <div class="arcimg">
+                            <img src="{{ MEDIA_URL }}{{ article.image }}" alt="{{ article.title }}"
+                                 title="{{ article.title }}"/>
+                        </div>
+                        <div class="arc-right">
+                            <h4 class="blue-text"><a href="{% url "myblog:detail" pk=article.id %}"
+                                                     title="{{ article.title }}">{{ article.title }}</a></h4>
+                            <p>{{ article.digest }}</p>
+                            <ul>
+                                <li><a title="{{ article.author }}&ensp;{{ article.edit_time }} 发表 ">
+                                    <i class="el-time"></i> {{ article.edit_time }}</a></li>
+                                <li><a href="#" title="作者： {{ article.author }}"><i
+                                        class="el-user"></i>{{ article.author }}</a></li>
+                                <li><a href="#" title="已有 {{ article.conment_nums }} 条评论"><i
+                                        class="el-comment"> {{ article.conment_nums }}</i></a>
+                                </li>
+                                <li><a title="已有 {{ article.read_nums }} 次浏览"><i
+                                        class="el-eye-open"></i>{{ article.read_nums }}
+                                </a></li>
+                                <li><a href="#" title="查看分类"><i class="el-th-list"></i>{{ article.category.name }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <!--列表结束-->
+        </div>
+
+        <div class="arclist">
+            <h4 class="index-title homeh4"><a href=""><i class="el-certificate"></i>最热文章
+                <small>Hot Article</small>
+            </a></h4>
+            <!--列表开始-->
+            <ul>
+                {% for article in article_rank %}
+                    <li id="Hot">
+                        <div class="arcimg">
+                            <img src="{{ MEDIA_URL }}{{ article.image }}" alt="{{ article.title }}"
+                                 title="{{ article.title }}"/>
+                        </div>
+                        <div class="arc-right">
+                            <h4 class="blue-text">
+                                <a href="{% url "myblog:detail" pk=article.id %}"
+                                   title="{{ article.title }}">{{ article.title }}</a></h4>
+                            <p>{{ article.digest }}</p>
+                            <ul>
+                                <li><a title="{{ article.author }}{{ article.edit_time }} 发表 "><i
+                                        class="el-time"></i> {{ article.edit_time }}</a></li>
+                                <li><a href="#" title="作者： {{ article.author }}"><i
+                                        class="el-user"></i>{{ article.author }}</a></li>
+                                <li><a href="#" title="已有 {{ article.conment_nums }} 条评论"><i
+                                        class="el-comment"> {{ article.conment_nums }}</i></a>
+                                </li>
+                                <li><a title="已有 {{ article.read_nums }} 次浏览"><i
+                                        class="el-eye-open"></i>{{ article.read_nums }}
+                                </a></li>
+                                <li><a href="#" title="查看分类"><i class="el-th-list"></i>{{ article.category.name }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <!--列表结束-->
+        </div>
+    </section>
+
+{% endblock %}

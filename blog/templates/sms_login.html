@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="/static/css/login_reglogin.css" rel='stylesheet' type='text/css' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="/static/js/jquery.min.js" type="text/javascript"></script>
+    <style>
+    .main #sms_code #vertify_code{
+        width:158px;
+        display:block;
+	    border:1px solid #EBEBEB;
+	    border-radius: 0.3em;
+	    -webkit-border-radius:0.3em;
+        -moz-border-radius:0.3em;
+        -o-border-radius:0.3em;
+ 	    margin-bottom: 10px;
+        margin-right: 20px;
+    }
+    .main #sms_code #get_vertify_code{
+        display: inline-block;
+        background-color: #F3F3F3;
+        color:#333222;
+        margin: auto 0px;
+        padding: 7.5px 30px;
+    }
+    .main #sms_code #get_vertify_code:hover {
+        background:#2E2D2D;
+        color:#fff;
+    }
+</style>
+</head>
+<body>
+    <div class="bg">
+        <img src="/static/images/c.jpg" alt="">
+    </div>
+	<div class="main">
+		<div class="header" >
+			<h1>创建一个新账户！</h1>
+		</div>
+        {% csrf_token %}
+		<p></p>
+        <ul class="left-form">
+            <h2>短信验证码登录:</h2>
+            <li>
+                <input type="text" id="phone" class="phone" name="phone" placeholder="手机号" required maxlength="11" />
+                <div class="clear"> </div>
+            </li>
+            <li style="border: none">
+                <div id="sms_code" style="position:relative;padding: 0px">
+                    <input type="text" id="vertify_code" name="vertify_code" placeholder="请输入验证码" required minlength="4" maxlength="4"/>
+                    <input type="submit" id="get_vertify_code" value="获取验证码">
+                </div>
+                <div class="clear"> </div>
+            </li>
+            <li style="border:none;text-align: center">
+                    <input id="log_btn" type="button" value="登录" onclick="sms_login()">
+            </li>
+                </ul>
+                <div class="clear"> </div>
+    </div>
+</body>
+    <script>
+        function sms_login(){
+            var phone = $('#phone').val()
+            var ver_code = $("#vertify_code").val()
+            var login_mode = "sms_login"
+            var code_token = window.localStorage.getItem('qiublog_code_token');
+            var csrf_token = $("[name=csrfmiddlewaretoken]").val();
+            var post_data = {
+                "phone":phone,
+                "ver_code":ver_code,
+                "login_mode":login_mode,
+                "code_token":code_token,
+                "csrfmiddlewaretoken":csrf_token,
+            }
+
+            $.ajax({
+            // 请求方式
+            type:"post",
+            // contentType
+            contentType:"application/json", //传输格式是json字符串
+            // dataType
+            dataType:"json",   //返回格式是json
+            // url
+            url:"http://127.0.0.1:8000/blog/login/",
+            //url:"http://127.0.0.1:8000/test/",
+            // 把JS的对象或数组序列化一个json 字符串
+            data:JSON.stringify(post_data),
+            // result 为请求的返回结果对象
+            success:function (result) {
+                if (200 == result.code){
+                    window.localStorage.setItem('qiublog_token', result.data.token)
+                    window.localStorage.setItem('qiublog_user', result.username)
+                    alert('登陆成功')
+                    refer_url = document.referrer
+                    //如果是项目内部的请求，回跳到上一步
+                    if (refer_url.search('127.0.0.1') != -1){
+
+                        if (refer_url.search('/login')!=-1){
+                            window.location.href =  'index.html'
+                        }
+                        else{
+                            window.location = refer_url;
+                        }
+                    }else{
+                        window.location.href =  'index.html'
+                    }
+                }else{
+                    alert(result.error)
+                }
+            }
+        });
+    }
+        $(function(){
+            $("#get_vertify_code").click(function(){
+                var that = this //按钮
+                var phone = $("#phone").val();
+                var csrf_token = $("[name=csrfmiddlewaretoken]").val();
+
+                var post_data = {
+                        'phone':phone,
+                        "csrfmiddlewaretoken":csrf_token,
+                }
+                $.ajax({
+                    // 请求方式
+                    type:"post",
+                    // contentType
+                    contentType:"application/json",
+                    // dataType
+                    dataType:"json",
+                    // url
+                    url:"http://127.0.0.1:8000/blog/send_sms_codes",
+                    // 把JS的对象或数组序列化一个json 字符串
+                    data:JSON.stringify(post_data),
+                    // result 为请求的返回结果对象
+                    success:function (result) {
+                        if (200 == result.code){
+                            window.localStorage.setItem('qiublog_code_token', result.data["code_token"])
+                            // 设定 60 秒后可以重新发送验证码
+                            var time = 60;
+                            // 立马 将按钮禁用 防止重复点击提交
+                            $(that).attr('disabled', true);
+                           // 颜色设置为 黑色
+                            $(that).css({
+                                'backgroundColor': "#2E2D2D",
+                                'color':"#fff",
+                            });
+                            // 将按钮提示文字改变
+                            showMsg(that, time);
+                            // 设置周期性执行， 周期性改变显示文字内容
+                            var timer = window.setInterval(function () {
+                                // 时间减少
+                                --time;
+                                // 显示文字
+                                showMsg(that, time);
+                                // 判断是否到期
+                                if (time == 0) {
+                                    // 到期后清除定时器
+                                    window.clearInterval(timer);
+                                    $(that).val("获取验证码");
+                                    // 改变颜色和文字内容
+                                    $(that).css({
+                                        'backgroundColor': "#F3F3F3",
+                                        'color':"#333222",
+                                    });
+                                    // 启用按钮
+                                    $(that).attr('disabled', false);
+                                }
+                            }, 1000)
+                            {#alert(result.data.info)#}
+                            alert("发送成功")
+                        }else{
+                            {#setTimeout(code="alert(result.data.info);",mesc=0)#}
+                            alert(result.error)
+                            }
+                        }
+                    })
+                //改变按钮 倒计时显示内容
+                function showMsg(obj, time) {
+                    var msg = time + "s重新发送";
+                    $(obj).val(msg);}
+            })
+        })
+    </script>
+
+</html>
